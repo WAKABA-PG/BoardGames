@@ -67,3 +67,7 @@ http://localhost:8000/
 ### デプロイ
 上記フォルダに作成された「\build\web」フォルダをそのままサーバへ配置する。
 
+
+## サンプルゲーム
+https://wakabaclass.com/wp-content/uploads/2023/11/web/index.html  
+https://wakabaclass.com/wp-content/uploads/2023/11/web2/index.html 
