@@ -3,16 +3,19 @@ import asyncio
 import pygame
 
 # 関数---------------------------------------------------------------------------
-# グリッド線の描画
 
 
+# ボード盤面描画に関する処理
 class BoardGrid:
+    # 初期処理（コンストラクタ）
     def __init__(self):
+        # マスの個数
         self.square_num = 8
         # ウィンドウの作成
         self.screen_width = 800
         self.screen_height = 800
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+        # 1マスの大きさ（// →切り捨て除算）
         self.square_size = self.screen_width // self.square_num
         # 色の設定
         self.BLACK = (0, 0, 0)
@@ -36,7 +39,7 @@ class BoardGrid:
             "Click to reset!", False, self.BLACK, self.RED
         )
 
-        # 盤面（黒：1、白：-1）
+        # 盤面（黒：1、白：-1）8マス×8マス
         self.board = [
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
@@ -48,7 +51,9 @@ class BoardGrid:
             [0, 0, 0, 0, 0, 0, 0, 0],
         ]
 
+    # グリッド線の描画
     def draw_grid(self):
+        # マス目分線引く
         for i in range(self.square_num):
             # 横線
             pygame.draw.line(
@@ -69,8 +74,11 @@ class BoardGrid:
 
     # 盤面の描画
     def draw_board(self):
+        # 盤面全体のループ
         for row_index, row in enumerate(self.board):
+            # 1行ずつループ
             for col_index, col in enumerate(row):
+                # 黒だったら
                 if col == 1:
                     pygame.draw.circle(
                         self.screen,
@@ -81,6 +89,7 @@ class BoardGrid:
                         ),
                         45,
                     )
+                # 白だったら
                 elif col == -1:
                     pygame.draw.circle(
                         self.screen,
@@ -93,10 +102,13 @@ class BoardGrid:
                     )
 
 
+# プレイヤー操作に関するクラス
 class PlayerOpe:
+    # 初期処理（コンストラクタ）
     def __init__(self):
-        # プレイヤー
+        # プレイヤー(最初は黒からスタート)
         self.player = 1
+        # 自分から見た時の四方八方
         self.vec_table = [
             (-1, -1),  # 左上
             (0, -1),  # 上
@@ -105,13 +117,15 @@ class PlayerOpe:
             (1, 0),  # 右
             (-1, 1),  # 左下
             (0, 1),  # 下
-            (1, 1),
-        ]  # 右下
+            (1, 1),  # 右下
+        ]
 
     # 石を置ける場所の取得
     def get_valid_positions(self, boardGrid):
         valid_position_list = []
+        # 8回ループ
         for row in range(boardGrid.square_num):
+            # 8回ループ
             for col in range(boardGrid.square_num):
                 # 石を置いていないマスのみチェック
                 if boardGrid.board[row][col] == 0:
@@ -124,6 +138,7 @@ class PlayerOpe:
                             and 0 <= y < boardGrid.square_num
                             and boardGrid.board[y][x] == -self.player
                         ):
+                            # どこかでbreakするまで永遠ループ
                             while True:
                                 x += vx
                                 y += vy
@@ -133,6 +148,7 @@ class PlayerOpe:
                                     and 0 <= y < boardGrid.square_num
                                     and boardGrid.board[y][x] == -self.player
                                 ):
+                                    # 再度ループ続行
                                     continue
                                 # プレイヤーの石と同色の石がある場合、石を置けるためインデックスを保存
                                 elif (
@@ -148,7 +164,6 @@ class PlayerOpe:
 
     # 石をひっくり返す
     def flip_pieces(self, col, row, boardGrid):
-        print("1")
         for vx, vy in self.vec_table:
             flip_list = []
             x = vx + col
@@ -174,8 +189,8 @@ class PlayerOpe:
 
 
 # メインループ=======================================================================
-# def main():
-async def main():
+def main():
+    # async def main():
     pygame.init()
     pygame.display.set_caption("オセロ")
 
@@ -257,7 +272,6 @@ async def main():
                         playerOpe.player *= -1
                         pass_num = 0
 
-                        print(boardGrid.board)
                 else:
                     boardGrid.board = [
                         [0, 0, 0, 0, 0, 0, 0, 0],
@@ -275,12 +289,12 @@ async def main():
 
         # 更新
         pygame.display.update()
-        await asyncio.sleep(0)
+        # await asyncio.sleep(0)
         clock.tick(FPS)
 
 
-# main()
-asyncio.run(main())
+main()
+# asyncio.run(main())
 
 # ===============================================================================
 
