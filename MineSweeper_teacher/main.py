@@ -56,6 +56,7 @@ class BoardGrid:
                               3
                                 )
     # 盤面内の描画を行う
+    # 爆弾：-1、何もなし：-2、爆弾表示用：11、クリック後の数値：0～8、旗表示用:10
     def draw_board(self):
         for row_index, row in enumerate(self.board):
             for col_index,col in enumerate(row):
@@ -101,7 +102,7 @@ class BoardGrid:
                 boardChild.append(-2)
             board.append(boardChild)
         
-        # 地雷を埋め込む
+        # 地雷を埋め込む(地雷:-1、何もなし：-2)
         while bombCount > 0: 
             # 地雷の位置をランダムに決定
             j = random.randint(0, self.square_num - 1)
@@ -176,12 +177,6 @@ def main():
 
         #ゲームオーバー時の処理
         if game_over:
-
-            
-            #爆弾にヒットしていた場合
-
-
-
             #失敗のメッセージ表示
             boardGrid.screen.blit(boardGrid.lose,(230,200))
 
@@ -219,7 +214,14 @@ def main():
                             print("OUT!!!!!")
 
                             #爆弾設定(爆弾:11)
-                            boardGrid.board[y][x] = 11
+                            #boardGrid.board[y][x] = 11
+
+                            # すべての爆弾を表示する
+                            for row_index, row in enumerate(boardGrid.board):
+                                for col_index,col in enumerate(row):
+                                    if col == -1:
+                                        boardGrid.board[row_index][col_index] = 11
+
 
                            
 
