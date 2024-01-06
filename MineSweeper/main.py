@@ -84,19 +84,18 @@ class BoardGrid:
                     text = self.font.render(str(col), True, self.YELLOW)
                     self.screen.blit(text, [col_index * self.square_size + 15, row_index * self.square_size + 10])
                 if col == -3:
-                    # TODO：エラーあり
-                    for col in self.square_num * self.square_num // 8:
-                        pygame.draw.rect(
-                        self.screen,
-                        self.RED,
-                        (col_index * self.square_size,
-                        row_index * self.square_size,
-                        50,
-                        50)
-                        )
-                        img1 = pygame.image.load("bomb.png")
-                        img1_2 = pygame.transform.scale(img1,(50,50))
-                        self.screen.blit(img1_2,[col_index * self.square_size,row_index * self.square_size])
+                    # TODO：エラーあり                    
+                    pygame.draw.rect(
+                    self.screen,
+                    self.RED,
+                    (col_index * self.square_size,
+                    row_index * self.square_size,
+                    50,
+                    50)
+                    )
+                    img1 = pygame.image.load("bomb.png")
+                    img1_2 = pygame.transform.scale(img1,(50,50))
+                    self.screen.blit(img1_2,[col_index * self.square_size,row_index * self.square_size])
 class Play:
     def __init__(self):
         self.vec_table = [
@@ -123,8 +122,14 @@ class Play:
         print (bomb_list)
         if boardGrid.board[row][col] == -2:
             boardGrid.board[row][col] = bomb_list
+            return False
         elif boardGrid.board[row][col] == -1:
             boardGrid.board[row][col] = -3
+            for row_index, row in enumerate(boardGrid.board):
+                for col_index, col in enumerate(row):
+                    if boardGrid.board[row_index][col_index] == -1:
+                        boardGrid.board[row_index][col_index] = -3
+            return True
 def main():
     pygame.init()
     pygame.display.set_caption("マインスイーパー")
@@ -138,9 +143,9 @@ def main():
     while run:
         boardGrid.screen.fill(boardGrid.DEEP_SKY_BLUE)
         boardGrid.draw_grid()
-        boardGrid.draw_board()
+        boardGrid.draw_board()        
         if game_over:
-            boardGrid.screen.blit(boardGrid,game_over (200,200))
+            boardGrid.screen.blit(boardGrid.game_over, (200,200))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -153,7 +158,7 @@ def main():
                     mx, my = pygame.mouse.get_pos()
                     x = mx // boardGrid.square_size
                     y = my // boardGrid.square_size
-                    play.flip_pieces(x, y, boardGrid)
+                    game_over = play.flip_pieces(x, y, boardGrid)
         pygame.display.update()
         clock.tick(FPS)
 main()
