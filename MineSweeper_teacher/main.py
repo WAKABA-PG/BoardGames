@@ -56,7 +56,7 @@ class BoardGrid:
                               3
                                 )
     # 盤面内の描画を行う
-    # 爆弾：-1、何もなし：-2、爆弾表示用：11、クリック後の数値：0～8、旗表示用:10
+    # 爆弾：-1、何もなし：-2、爆弾表示用：21、クック後の数値：0～8、旗表示用:9～10
     def draw_board(self):
         for row_index, row in enumerate(self.board):
             for col_index,col in enumerate(row):
@@ -66,12 +66,12 @@ class BoardGrid:
                     text =  self.font2.render(str(col), True, self.BLACK) 
                     self.screen.blit(text, [col_index * self.suqare_size + 15,  row_index* self.suqare_size+10])
                 #爆弾を描画
-                elif col == 11:
+                elif col == 21:
                     img1 = pygame.image.load("bomb.png")
                     img1 = pygame.transform.scale(img1, (50, 50)) #200 * 130に画像を縮小
                     self.screen.blit(img1, [col_index * self.suqare_size ,  row_index* self.suqare_size])
                 # 旗を描画
-                elif col == 10:
+                elif col == 10 or col == 9:
                     img1 = pygame.image.load("flag.png")
                     img1 = pygame.transform.scale(img1, (50, 50)) #200 * 130に画像を縮小
                     self.screen.blit(img1, [col_index * self.suqare_size ,  row_index* self.suqare_size])
@@ -85,7 +85,7 @@ class BoardGrid:
         usage_flag_count = 0
         # 現在使用された旗をカウント
         for i in self.board:
-            usage_flag_count += i.count(10)
+            usage_flag_count += (i.count(10) + i.count(9))
         #残りの旗を表示
         flag_msg =  "Flag: " + str(self.flag_count - usage_flag_count)
         flag_txt =  self.font2.render(flag_msg, True, self.GREEN) 
@@ -145,11 +145,24 @@ class Play:
             y = vy + my
             if(0<= x < boardGrid.square_num
                 and 0 <= y < boardGrid.square_num
-                and boardGrid.board[y][x] == -1):
+                and (boardGrid.board[y][x] == -1 or (boardGrid.board[y][x] -11) == -1)):
                 # 盤面の枠内かつ、地雷の場所ならカウントアップ
+                # 旗が立っているマスが爆弾であった場合を考慮する
                 bomb_count += 1
 
-        return bomb_count            
+        return bomb_count    
+
+    # 指定された場所の周りをオープンする
+    def open(self, boardGrid, mx, my):
+        for vx, vy in self.vec_table:
+            x = vx + mx
+            y = vy + my
+            if(0<= x < boardGrid.square_num
+                and 0 <= y < boardGrid.square_num
+                and boardGrid.board[y][x] == -2):
+                # 盤面の枠内かつ、まだ未オープンの個所ならばオープンにする
+                cnt = Play.search_inspector(self=self,boardGrid=boardGrid,mx=x, my=y)
+                boardGrid.board[y][x] = cnt    
 
 
 def main():
@@ -164,6 +177,7 @@ def main():
 
 
     game_over = False
+    game_success = False
 
     boardGrid = BoardGrid()
     play = Play()
@@ -179,6 +193,9 @@ def main():
         if game_over:
             #失敗のメッセージ表示
             boardGrid.screen.blit(boardGrid.lose,(230,200))
+        if game_success:
+            #成功時のメッセージ表示
+            boardGrid.screen.blit(boardGrid.success,(230,200))
 
 
 
@@ -194,9 +211,10 @@ def main():
                 y = my // boardGrid.suqare_size
                 print(f'{x}、{y}')
 
-                if game_over:
-                    #ゲームオーバーの場合、再スタート
+                if game_over or game_success:
+                    #ゲームオーバーまたは成功の場合、再スタート
                     game_over = False
+                    game_success = False
                     # ボード再作成（初期化）
                     boardGrid = BoardGrid()
                 else:
@@ -213,14 +231,14 @@ def main():
                             game_over = True
                             print("OUT!!!!!")
 
-                            #爆弾設定(爆弾:11)
-                            #boardGrid.board[y][x] = 11
+                            #爆弾設定(爆弾:21)
+                            #boardGrid.board[y][x] = 21
 
                             # すべての爆弾を表示する
                             for row_index, row in enumerate(boardGrid.board):
                                 for col_index,col in enumerate(row):
                                     if col == -1:
-                                        boardGrid.board[row_index][col_index] = 11
+                                        boardGrid.board[row_index][col_index] = 21
 
 
                            
@@ -232,8 +250,13 @@ def main():
                             print(count)
                             # 0～8のどれか
                             boardGrid.board[y][x] = count
+
+                            if count == 0:
+                                #数字0の場合、周りの個所もオープンする
+                                play.open(boardGrid, x, y)
+                           
                 
-                    # 右クリックの場合は旗を立てる(旗:10)
+                    # 右クリックの場合は旗を立てる(旗:9～10)
                     elif evet.button == RIGHT:
 
                         # 残りの旗数をチェック
@@ -241,11 +264,21 @@ def main():
                         usage_flag_count = 0
                         # 現在使用された旗をカウント
                         for i in boardGrid.board:
-                            usage_flag_count += i.count(10)
+                            usage_flag_count += (i.count(10) + i.count(9)) 
                         if boardGrid.flag_count > usage_flag_count:
                             # まだ旗が残っていたら旗を設定
-                            boardGrid.board[y][x] = 10
-    
+                            boardGrid.board[y][x] =  boardGrid.board[y][x] + 11
+
+                            #TODO クリア条件をかく
+                    
+                    #ゲームクリアしたかどうかを判定
+                    isCeckCnt = 0
+                    for i in boardGrid.board:
+                        isCeckCnt += i.count(-2)
+                    if isCeckCnt == 0:
+                        game_success = True
+                    else:
+                        isCeckCnt = 0
 
 
 
