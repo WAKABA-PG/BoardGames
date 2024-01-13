@@ -19,7 +19,8 @@ class BoardGrid:
         self.DODGER_BLUE = (30,144,255)
         self.DEEP_SKY_BLUE = (0,191,255)
         self.font = pygame.font.SysFont(None, 40)
-        self.game_over = self.font.render("GAME OVER", False, self.RED, self.BLACK)
+        self.font_game_over = pygame.font.SysFont(None, 150)
+        self.game_over = self.font_game_over.render("GAME OVER", False, self.RED, self.BLACK)
         self.clear = self.font.render("CLEAR!", False, self.YELLOW, self.BLUE)
         self.restart = self.font.render("RESTART", False, self.BLUE, self.YELLOW)
         self.board = [[-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
@@ -137,6 +138,7 @@ def main():
     FPS = 60
     clock = pygame.time.Clock()
     game_over = False
+    clear = False
     run = True
     boardGrid = BoardGrid()
     play = Play()
@@ -158,7 +160,40 @@ def main():
                     mx, my = pygame.mouse.get_pos()
                     x = mx // boardGrid.square_size
                     y = my // boardGrid.square_size
-                    game_over = play.flip_pieces(x, y, boardGrid)
+                    if boardGrid.board[y][x] == -1 or boardGrid.board[y][x] == -2:  #まだひっくり返してない                      
+                        game_over = play.flip_pieces(x, y, boardGrid)
+                        #TODO クリア条件の入力
+                        #for 
+                        #if not boardGrid
+                else:
+                    boardGrid.board = [[-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
+                                       [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
+                                       [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
+                                       [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
+                                       [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
+                                       [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
+                                       [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
+                                       [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
+                                       [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
+                                       [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
+                                       [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
+                                       [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
+                                       [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
+                                       [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
+                                       [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
+                                       [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
+                                       [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
+                                       [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
+                                       [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
+                                       [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2]]
+                    boardGrid.random = boardGrid.square_num * boardGrid.square_num // 8
+                    while boardGrid.random > 0:
+                        j = random.randint(0, boardGrid.square_num - 1)
+                        l = random.randint(0, boardGrid.square_num - 1)
+                        if boardGrid.board[j][l] == -2:
+                            boardGrid.board[j][l] = -1
+                            boardGrid.random -= 1
+                    game_over = False
         pygame.display.update()
         clock.tick(FPS)
 main()
