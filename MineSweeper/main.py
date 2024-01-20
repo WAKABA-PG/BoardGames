@@ -44,7 +44,8 @@ class BoardGrid:
                       [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
                       [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2]]
         # ランダム設定
-        self.random = self.square_num * self.square_num // 8
+        #self.random = self.square_num * self.square_num // 8
+        self.random = 1
         while self.random > 0:
             j = random.randint(0, self.square_num - 1)
             l = random.randint(0, self.square_num - 1)
@@ -131,6 +132,17 @@ class Play:
                     if boardGrid.board[row_index][col_index] == -1:
                         boardGrid.board[row_index][col_index] = -3
             return True
+    
+    def auto_open(self, boardGrid, mx, my):
+        for vx, vy in self.vec_table:
+            x = vx + mx
+            y = vy + my
+            if(0 <= x < boardGrid.square_num
+               and 0 <= y < boardGrid.square_num
+               and boardGrid.board[y][x] == -2):
+                #盤面のなかかつ、未オープンなら開く
+                self.flip_pieces(x, y, boardGrid)
+
 def main():
     pygame.init()
     pygame.display.set_caption("マインスイーパー")
@@ -142,12 +154,15 @@ def main():
     run = True
     boardGrid = BoardGrid()
     play = Play()
+    count_check = 0
     while run:
         boardGrid.screen.fill(boardGrid.DEEP_SKY_BLUE)
         boardGrid.draw_grid()
         boardGrid.draw_board()        
         if game_over:
             boardGrid.screen.blit(boardGrid.game_over, (200,200))
+        if clear:
+            boardGrid.screen.blit(boardGrid.clear, (200,200))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -156,15 +171,23 @@ def main():
                 if event.key == pygame.K_ESCAPE:
                     run = False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if game_over == False:
+                if game_over == False and clear == False:
                     mx, my = pygame.mouse.get_pos()
                     x = mx // boardGrid.square_size
                     y = my // boardGrid.square_size
                     if boardGrid.board[y][x] == -1 or boardGrid.board[y][x] == -2:  #まだひっくり返してない                      
                         game_over = play.flip_pieces(x, y, boardGrid)
-                        #TODO クリア条件の入力
-                        #for 
-                        #if not boardGrid
+                        #もし結果が0だったら周りも開く
+                        if game_over == False and boardGrid.board[y][x] == 0:
+                            play.auto_open(boardGrid, x, y)
+                        #クリア条件
+                        count_check = 0
+                        for row_index, row in enumerate(boardGrid.board):
+                            for col_index, col in enumerate(row):
+                                if not boardGrid.board[row_index][col_index] == -2:
+                                    count_check += 1
+                        if count_check == 400:
+                            clear = True
                 else:
                     boardGrid.board = [[-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
                                        [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
@@ -194,6 +217,7 @@ def main():
                             boardGrid.board[j][l] = -1
                             boardGrid.random -= 1
                     game_over = False
+                    clear = False
         pygame.display.update()
         clock.tick(FPS)
 main()
