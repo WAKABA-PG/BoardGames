@@ -10,8 +10,8 @@ class BoardGrid:
         
         #爆弾数
         self.bomb_count = 15
-        #旗の数は爆弾数 + 5とする
-        self.flag_count = self.bomb_count + 5
+        #旗の数は爆弾数 + 2とする
+        self.flag_count = self.bomb_count + 2
 
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
         #１マスの大きさ(50)
@@ -31,7 +31,7 @@ class BoardGrid:
         self.font = pygame.font.SysFont(None, 100)
         self.font2 = pygame.font.SysFont(None, 40)
 
-        self.success = self.font.render("SUCCESS!!", False, self.BLACK, self.RED)
+        self.success = self.font.render("SUCCESS!!", False, self.BLACK, self.GREEN)
         self.lose = self.font.render("LOSE....", False, self.WHITE, self.RED)
         self.drow = self.font.render("引き分け！", False, self.BLUE, self.RED)
         self.restart = self.font.render("リスタート", False, self.BLUE, self.RED)
@@ -164,6 +164,16 @@ class Play:
                 cnt = Play.search_inspector(self=self,boardGrid=boardGrid,mx=x, my=y)
                 boardGrid.board[y][x] = cnt    
 
+def checkJudge(board):
+    #ゲームクリアしたかどうかを判定
+    unOpen = 0
+    for i in board:
+        unOpen += i.count(-2)
+    if unOpen  == 0:
+        return True
+    else:
+        return False
+
 
 def main():
     pygame.init()
@@ -268,17 +278,10 @@ def main():
                         if boardGrid.flag_count > usage_flag_count:
                             # まだ旗が残っていたら旗を設定
                             boardGrid.board[y][x] =  boardGrid.board[y][x] + 11
-
-                            #TODO クリア条件をかく
                     
                     #ゲームクリアしたかどうかを判定
-                    isCeckCnt = 0
-                    for i in boardGrid.board:
-                        isCeckCnt += i.count(-2)
-                    if isCeckCnt == 0:
+                    if checkJudge(boardGrid.board):
                         game_success = True
-                    else:
-                        isCeckCnt = 0
 
 
 
