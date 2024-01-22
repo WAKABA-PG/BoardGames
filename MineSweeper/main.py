@@ -99,7 +99,7 @@ class BoardGrid:
                     img1_2 = pygame.transform.scale(img1,(40,40))
                     self.screen.blit(img1_2,[col_index * self.square_size,row_index * self.square_size])
                 #旗
-                if -4 <= col <= -5:
+                if -5 <= col <= -4:
                     img2 = pygame.image.load("flag.png")
                     img2_2 = pygame.transform.scale(img2,(40,40))
                     self.screen.blit(img2_2,[col_index * self.square_size,row_index * self.square_size])
@@ -124,7 +124,7 @@ class Play:
             y = vy + row
             if (0<= x < boardGrid.square_num
                 and 0 <= y < boardGrid.square_num
-                and boardGrid.board[y][x] == -1):
+                and (boardGrid.board[y][x] == -1 or boardGrid.board[y][x] == -4)):
                 bomb_list += 1
         print (bomb_list)
         if boardGrid.board[row][col] == -2:
@@ -148,17 +148,21 @@ class Play:
                 #盤面のなかかつ、未オープンなら開く
                 self.flip_pieces(x, y, boardGrid)
 
-    def flag(self, boardGrid, x, y):
+    def flag(self, boardGrid, x, y, flag_count):
         if(0 <= x < boardGrid.square_num
             and 0 <= y < boardGrid.square_num):
-            if boardGrid.board[y][x] == -2:
-                boardGrid.board[y][x] == -5
-            elif boardGrid.board[y][x] == -1:
-                boardGrid.board[y][x] == -4
-            elif boardGrid.board[y][x] == -5:
-                boardGrid.board[y][x] == -2
+            if 0 <= flag_count < self.square_num * self.square_num // 8:
+                if boardGrid.board[y][x] == -2:
+                    boardGrid.board[y][x] = -5
+                elif boardGrid.board[y][x] == -1:
+                    boardGrid.board[y][x] = -4
+            flag_count += 1
+
+            if boardGrid.board[y][x] == -5:
+                boardGrid.board[y][x] = -2
             elif boardGrid.board[y][x] == -4:
-                boardGrid.board[y][x] == -1
+                boardGrid.board[y][x] = -1
+            flag_count += -1
 
 def main():
     pygame.init()
@@ -174,6 +178,7 @@ def main():
     count_check = 0
     left = 1
     right = 3
+    flag_count = 0
     while run:
         boardGrid.screen.fill(boardGrid.DEEP_SKY_BLUE)
         boardGrid.draw_grid()
@@ -246,7 +251,7 @@ def main():
                         x = mx // boardGrid.square_size
                         y = my // boardGrid.square_size
                         #if boardGrid.board[y][x] == -1 or boardGrid.board[y][x] == -2:  #まだひっくり返してない 
-                        play.flag(boardGrid, x, y)
+                        play.flag(boardGrid, x, y, flag_count)
         pygame.display.update()
         clock.tick(FPS)
 main()
