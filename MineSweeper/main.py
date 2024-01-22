@@ -151,18 +151,20 @@ class Play:
     def flag(self, boardGrid, x, y, flag_count):
         if(0 <= x < boardGrid.square_num
             and 0 <= y < boardGrid.square_num):
-            if 0 <= flag_count < self.square_num * self.square_num // 8:
+            max = boardGrid.square_num * boardGrid.square_num // 8
+            if 0 <= flag_count < max:
                 if boardGrid.board[y][x] == -2:
                     boardGrid.board[y][x] = -5
+                    flag_count += 1
                 elif boardGrid.board[y][x] == -1:
                     boardGrid.board[y][x] = -4
-            flag_count += 1
-
-            if boardGrid.board[y][x] == -5:
-                boardGrid.board[y][x] = -2
-            elif boardGrid.board[y][x] == -4:
-                boardGrid.board[y][x] = -1
-            flag_count += -1
+                    flag_count += 1
+                elif boardGrid.board[y][x] == -5:
+                    boardGrid.board[y][x] = -2
+                    flag_count += -1
+                elif boardGrid.board[y][x] == -4:
+                    boardGrid.board[y][x] = -1
+                    flag_count += -1
 
 def main():
     pygame.init()
