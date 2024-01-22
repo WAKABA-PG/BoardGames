@@ -115,6 +115,9 @@ class Play:
             (0,1),
             (1,1)
         ]
+
+        self.flag_count = 0
+
     def flip_pieces(self, col, row, boardGrid):
         print(col)
         print(row)
@@ -148,23 +151,23 @@ class Play:
                 #盤面のなかかつ、未オープンなら開く
                 self.flip_pieces(x, y, boardGrid)
 
-    def flag(self, boardGrid, x, y, flag_count):
+    def flag(self, boardGrid, x, y):
         if(0 <= x < boardGrid.square_num
             and 0 <= y < boardGrid.square_num):
             max = boardGrid.square_num * boardGrid.square_num // 8
-            if 0 <= flag_count < max:
+            if 0 <= self.flag_count < max:
                 if boardGrid.board[y][x] == -2:
                     boardGrid.board[y][x] = -5
-                    flag_count += 1
+                    self.flag_count += 1
                 elif boardGrid.board[y][x] == -1:
                     boardGrid.board[y][x] = -4
-                    flag_count += 1
+                    self.flag_count += 1
                 elif boardGrid.board[y][x] == -5:
                     boardGrid.board[y][x] = -2
-                    flag_count += -1
+                    self.flag_count += -1
                 elif boardGrid.board[y][x] == -4:
                     boardGrid.board[y][x] = -1
-                    flag_count += -1
+                    self.flag_count += -1
 
 def main():
     pygame.init()
@@ -180,7 +183,6 @@ def main():
     count_check = 0
     left = 1
     right = 3
-    flag_count = 0
     while run:
         boardGrid.screen.fill(boardGrid.DEEP_SKY_BLUE)
         boardGrid.draw_grid()
@@ -253,7 +255,7 @@ def main():
                         x = mx // boardGrid.square_size
                         y = my // boardGrid.square_size
                         #if boardGrid.board[y][x] == -1 or boardGrid.board[y][x] == -2:  #まだひっくり返してない 
-                        play.flag(boardGrid, x, y, flag_count)
+                        play.flag(boardGrid, x, y)
         pygame.display.update()
         clock.tick(FPS)
 main()
