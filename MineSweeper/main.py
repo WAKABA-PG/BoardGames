@@ -44,7 +44,7 @@ class BoardGrid:
                       [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2],
                       [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2]]
         # ランダム設定
-        self.random = self.square_num * self.square_num // 8
+        self.random = 1 #self.square_num * self.square_num // 8
         #self.random = 1
         while self.random > 0:
             j = random.randint(0, self.square_num - 1)
@@ -155,19 +155,22 @@ class Play:
         if(0 <= x < boardGrid.square_num
             and 0 <= y < boardGrid.square_num):
             max = boardGrid.square_num * boardGrid.square_num // 8
-            if 0 <= self.flag_count < max:
-                if boardGrid.board[y][x] == -2:
-                    boardGrid.board[y][x] = -5
-                    self.flag_count += 1
-                elif boardGrid.board[y][x] == -1:
-                    boardGrid.board[y][x] = -4
-                    self.flag_count += 1
-                elif boardGrid.board[y][x] == -5:
-                    boardGrid.board[y][x] = -2
-                    self.flag_count += -1
-                elif boardGrid.board[y][x] == -4:
-                    boardGrid.board[y][x] = -1
-                    self.flag_count += -1
+            if boardGrid.board[y][x] == -2 or boardGrid.board[y][x] == -1:
+                if 0 <= self.flag_count < max:
+                    if boardGrid.board[y][x] == -2:
+                        boardGrid.board[y][x] = -5
+                        self.flag_count += 1
+                    elif boardGrid.board[y][x] == -1:
+                        boardGrid.board[y][x] = -4
+                        self.flag_count += 1
+            else:
+                if 0 < self.flag_count <= max:
+                    if boardGrid.board[y][x] == -5:
+                        boardGrid.board[y][x] = -2
+                        self.flag_count += -1
+                    elif boardGrid.board[y][x] == -4:
+                        boardGrid.board[y][x] = -1
+                        self.flag_count += -1
 
 def main():
     pygame.init()
@@ -214,7 +217,7 @@ def main():
                             count_check = 0
                             for row_index, row in enumerate(boardGrid.board):
                                 for col_index, col in enumerate(row):
-                                    if not boardGrid.board[row_index][col_index] == -2:
+                                    if boardGrid.board[row_index][col_index] != -2 and boardGrid.board[row_index][col_index] != -5:
                                         count_check += 1
                             if count_check == 400:
                                 clear = True
@@ -248,6 +251,7 @@ def main():
                                 boardGrid.random -= 1
                         game_over = False
                         clear = False
+                        play.flag_count = 0
                 #右クリック
                 elif event.button == right:
                     if game_over == False and clear == False:
